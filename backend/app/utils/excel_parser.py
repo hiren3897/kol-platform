@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from pydantic import ValidationError
 import logging
 
-from ..models import KOL # Relative import
+from ..models import KOL
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -21,7 +21,7 @@ def parse_excel_file(file_path: str) -> List[KOL]:
         raise ExcelParserError("Invalid or missing data file path.")
         
     try:
-        # 1. READ ONLY THE 'Authors' SHEET
+        # READ ONLY THE 'Authors' SHEET
         # We assume the main KOL data is in a sheet named 'Authors'
         # The header should be the first row (header=0).
         df = pd.read_excel(file_path, sheet_name='Authors', header=0) 
@@ -48,11 +48,11 @@ def parse_excel_file(file_path: str) -> List[KOL]:
         # expertise_area, publications_count, h_index, citations
         # We MUST remove all processing of columns that are NOT in the 'Authors' sheet:
 
-        # 2. RENAME ONLY EXISTING COLUMNS (id, name, affiliation, country)
+        # RENAME ONLY EXISTING COLUMNS (id, name, affiliation, country)
     }, inplace=True)
 
 
-    # 3. Handle MISSING COLUMNS
+    # Handle MISSING COLUMNS
     # Since the 'Authors' sheet only contains basic info, we must make these fields
     # optional or assign placeholders if they are mandatory in KOL model.
     df['publicationsCount'] = 0
@@ -77,13 +77,12 @@ def parse_excel_file(file_path: str) -> List[KOL]:
         try:
             kol_data: Dict[str, Any] = row.to_dict()
             
-            # Pydantic validation handles constraints like ge=0 and type safety
             # We map the keys used in the model to the data dictionary
             kol = KOL(
-                id=kol_data.get('id', str(index)), # Use 'id' column name if renamed
+                id=kol_data.get('id', str(index)),
                 name=kol_data['name'], 
-                affiliation=kol_data.get('Affiliations/Sites', kol_data.get('affiliation', '')), # Use the column name directly if rename failed
-                country=kol_data['Countries'], # Use the column name directly if rename failed
+                affiliation=kol_data.get('Affiliations/Sites', kol_data.get('affiliation', '')), 
+                country=kol_data['Countries'], 
                 city=kol_data.get('city', ''), # Now included
                 expertiseArea=kol_data.get('expertiseArea', 'Unknown'),
                 publicationsCount=kol_data.get('publicationsCount', 0),

@@ -2,9 +2,10 @@ import type { KOL, OverviewStats, CountryData, ExpertiseData } from "../types/ko
 
 
 /**
- * ⚠️ Data Analysis Task Answer:
+ * Data Analysis Task Answer:
  * 1. Total Number of Unique Countries: 24
- * 2. Expertise Area with Highest Average H-Index: Both Pigmentation Disorders and Skin Immunology, with an average H-Index of ≈39.57.
+ * 2. Expertise Area with Highest Average H-Index: Both Pigmentation Disorders and Skin Immunology, 
+ * with an average H-Index of ≈39.57.
  */
 
 // Utility function to safely calculate the average
@@ -13,7 +14,7 @@ const calculateAverage = (sum: number, count: number): number => {
 };
 
 /**
- * Processes a list of KOLs to calculate global statistics for the OverviewStats card and charts.
+ * processes a list of KOLs to calculate global statistics for the OverviewStats card and charts.
  */
 export const calculateOverviewStats = (kols: KOL[]): OverviewStats => {
     if (kols.length === 0) {
@@ -31,7 +32,7 @@ export const calculateOverviewStats = (kols: KOL[]): OverviewStats => {
     let totalPublications = 0;
     let totalHIndex = 0;
     
-    // Grouping for aggregated data
+    // grouping for aggregated data
     const countryMap = new Map<string, number>();
     const expertiseMap = new Map<string, { count: number, totalHIndex: number, totalPublications: number }>();
 
@@ -39,10 +40,10 @@ export const calculateOverviewStats = (kols: KOL[]): OverviewStats => {
         totalPublications += kol.publicationsCount;
         totalHIndex += kol.hIndex;
 
-        // Country Data
+        // country data
         countryMap.set(kol.country, (countryMap.get(kol.country) || 0) + 1);
 
-        // Expertise Data
+        // expertise data
         const area = kol.expertiseArea;
         const currentData = expertiseMap.get(area) || { count: 0, totalHIndex: 0, totalPublications: 0 };
         expertiseMap.set(area, {
@@ -52,11 +53,11 @@ export const calculateOverviewStats = (kols: KOL[]): OverviewStats => {
         });
     }
 
-    // 1. Global Averages
+    // Global Averages
     const averageHIndex = calculateAverage(totalHIndex, totalKols);
     const countriesRepresented = countryMap.size;
 
-    // 2. Country Distribution (Top 10)
+    //Country Distribution (Top 10)
     const countryArray: CountryData[] = Array.from(countryMap.entries()).map(([country, count]) => ({
         country,
         count,
@@ -64,9 +65,9 @@ export const calculateOverviewStats = (kols: KOL[]): OverviewStats => {
     }));
     const topCountries = countryArray
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10); // Top 10 for the chart
+        .slice(0, 10); // t op 10 for the chart
 
-    // 3. Expertise Distribution
+    // Expertise Distribution
     const expertiseDistribution: ExpertiseData[] = Array.from(expertiseMap.entries()).map(([area, data]) => ({
         area,
         count: data.count,

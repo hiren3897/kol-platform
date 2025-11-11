@@ -1,8 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator, ValidationError
 
-# --- Core Data Model ---
-
 class KOL(BaseModel):
     """Pydantic model for a Key Opinion Leader (KOL), used for parsing and responses."""
     id: str
@@ -58,6 +56,5 @@ class StatsResponse(BaseModel):
     total_publications: int = Field(..., ge=0)
     average_h_index: float = Field(..., ge=0)
     countries_represented: int = Field(..., ge=0)
-    # Include detailed stats required for full integration (Step 5)
     top_countries: List[CountryData] = []
     expertise_distribution: List[ExpertiseData] = []

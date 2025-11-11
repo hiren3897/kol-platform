@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     
     model_config = SettingsConfigDict(
         env_file=".env", 
-        extra='ignore' # Ignore extra environment variables not defined here
+        extra='ignore'
     )
 
     APP_NAME: str = "KOL Data Platform API"
