@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { mockKolData } from '../data/mockKolData';
-import { calculateOverviewStats } from '../utils/dataProcessing';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+
+import { fetchAllKols, fetchKolStats } from '../api/kolApi';
 import { KolContext } from '../context/KolContext';
 import type { KolFilterState, KOL, OverviewStats, KolContextType } from '../types/kol.types';
 
@@ -13,15 +13,50 @@ const initialFilters: KolFilterState = {
 };
 
 export const KolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [kols] = useState<KOL[]>(mockKolData);
+    const [kols, setKols] = useState<KOL[]>([]);
+    const [stats, setStats] = useState<OverviewStats | null>(null);
 
     const [filters, setFilters] = useState<KolFilterState>(initialFilters);
+    const [isLoading, setIsLoading] = useState(true); // Start loading immediately
+    const [error, setError] = useState<string | null>(null);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [error] = useState<string | null>(null);
+    const fetchKolStatsData = useCallback(async () => {
+        // This function can be called separately to refresh just the stats
+        try {
+            const statsData = await fetchKolStats();
+            setStats(statsData);
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+            setError(`Failed to fetch stats: ${err.message!}`);
+        }
+    }, []);
 
+    const fetchKols = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const kolsData = await fetchAllKols();
+            setKols(kolsData);
+            // Note: In the final filtered version (Bonus), we'd fetch filtered data here.
+
+            // After fetching KOLs, fetch global stats (which depend on the full dataset)
+            await fetchKolStatsData();
+
+        } catch (err) {
+            console.error("Error fetching KOL data:", err);
+            setError(`Failed to fetch KOLs: ${err.message}`);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [fetchKolStatsData]);
+
+
+    useEffect(() => {
+        fetchKols();
+    }, [fetchKols]);
 
     const filteredKols = useMemo(() => {
+
         let result = kols;
 
         if (filters.searchTerm) {
@@ -32,28 +67,9 @@ export const KolProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             );
         }
 
-        if (filters.countries.length > 0) {
-            result = result.filter(kol => filters.countries.includes(kol.country));
-        }
-
-        if (filters.expertiseAreas.length > 0) {
-            result = result.filter(kol => filters.expertiseAreas.includes(kol.expertiseArea));
-        }
-
-        if (filters.minPublications !== null) {
-            result = result.filter(kol => kol.publicationsCount >= filters.minPublications!);
-        }
-        if (filters.maxPublications !== null) {
-            result = result.filter(kol => kol.publicationsCount <= filters.maxPublications!);
-        }
-
         return result;
     }, [kols, filters]);
 
-
-    const stats: OverviewStats = useMemo(() => {
-        return calculateOverviewStats(filteredKols);
-    }, [filteredKols]);
 
     const updateFilters = useCallback((newFilters: Partial<KolFilterState>) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
@@ -63,15 +79,6 @@ export const KolProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setFilters(initialFilters);
     }, []);
 
-    const fetchKols = useCallback(async () => {
-        setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate loading
-        setIsLoading(false);
-    }, []);
-
-    const refetchStats = useCallback(async () => {
-        return;
-    }, []);
 
     const contextValue: KolContextType = {
         kols,
@@ -83,7 +90,7 @@ export const KolProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isLoading,
         error,
         fetchKols,
-        refetchStats,
+        refetchStats: fetchKolStatsData,
     };
 
     return (

@@ -4,7 +4,7 @@ from collections import defaultdict
 import logging
 
 from ..models import KOL, StatsResponse, CountryData, ExpertiseData
-from ..utils.excel_parser import parse_excel_file, ExcelParserError
+from ..utils.data_loader import load_kol_data, DataLoaderError
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,8 +18,8 @@ class KolService:
     def _load_data(self, file_path: str) -> List[KOL]:
         """Loads and parses data from the Excel file on startup."""
         try:
-            return parse_excel_file(file_path)
-        except ExcelParserError as e:
+            return load_kol_data(file_path) # NEW CALL
+        except DataLoaderError as e:
             logging.error(f"FATAL: Could not load KOL data: {e}")
             # If data loading fails, start with an empty list but log the error
             return []

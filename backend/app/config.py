@@ -15,10 +15,12 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # CORS settings
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
     
     # Data path (relative to the backend/ directory)
-    DATA_FILE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Vitiligo_kol_csv_29_07_2024_drug_and_kol_standardized.xlsx')
+    #DATA_FILE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'Vitiligo_kol_csv_29_07_2024_drug_and_kol_standardized.xlsx')
+    DATA_FILE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'mockKolData.json')
+
 
 @lru_cache()
 def get_settings():
