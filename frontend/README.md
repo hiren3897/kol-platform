@@ -31,6 +31,6 @@ This directory contains the single-page application (SPA) built with **React** a
     ```bash
     npm run dev  # or yarn dev
     ```
-The frontend application will typically open at `http://localhost:3000` (or similar).
+The frontend application will typically open at `http://localhost:5173` (or similar).
 
 ---
