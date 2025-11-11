@@ -1,20 +1,20 @@
-// frontend/src/pages/Dashboard.tsx
+// frontend/src/pages/Dashboard.tsx - Updated
 
 import React, { useMemo } from 'react';
 import StatCard from '../components/ui/StatCard';
 import { mockKolData } from '../data/mockKolData';
 import { calculateOverviewStats } from '../utils/dataProcessing';
+import CountryBarChart from '../components/visualizations/CountryBarChart'; // Import chart
 import Layout from '../components/layouts/Layout';
+import Card from '../components/ui/Card';
 
 // NOTE: This will be migrated to use Context API (Step 3) 
-// and the API (Step 5), but for Step 1, we use mock data directly.
+// and the API (Step 5), but for Step 1/2A, we use mock data directly.
 
 const Dashboard: React.FC = () => {
 
-    // Calculate initial stats from mock data
     const stats = useMemo(() => calculateOverviewStats(mockKolData), []);
 
-    // For display formatting
     const formatNumber = (num: number) => num.toLocaleString('en-US', { maximumFractionDigits: 0 });
     const formatHIndex = (num: number) => num.toFixed(2);
 
@@ -37,7 +37,6 @@ const Dashboard: React.FC = () => {
                         title="Average H-Index"
                         value={formatHIndex(stats.averageHIndex)}
                         icon="hindex"
-                        // Example trend (static for now)
                         trend={{ value: 1.5, isPositive: true }}
                     />
                     <StatCard
@@ -47,12 +46,14 @@ const Dashboard: React.FC = () => {
                     />
                 </div>
 
-                {/* Placeholder for D3 Chart (Step 2A) */}
-                <div className="p-4 rounded-xl border border-gray-200">
-                    <h2 className="text-xl font-semibold text-text-dark mb-4">KOL Distribution by Country (D3 Chart Placeholder)</h2>
-                    <p className="text-gray-500">The interactive D3 Bar Chart will be rendered here in **Step 2A**.</p>
-                    {/* <CountryBarChart data={stats.topCountries} /> */}
-                </div>
+                {/* D3 Chart - Step 2A */}
+                <Card>
+                    <h2 className="text-xl font-semibold text-text-dark">KOL Distribution by Country</h2>
+                    <p className="text-sm text-gray-500 mb-4">Top 10 countries by number of Key Opinion Leaders.</p>
+                    <div className="w-full">
+                        <CountryBarChart data={stats.topCountries} />
+                    </div>
+                </Card>
             </div>
         </Layout>
     );
