@@ -1,26 +1,30 @@
-// frontend/src/pages/Dashboard.tsx - Updated
+// frontend/src/pages/Dashboard.tsx - FINAL MANDATORY UPDATE FOR STEP 3A
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import StatCard from '../components/ui/StatCard';
-import { mockKolData } from '../data/mockKolData';
-import { calculateOverviewStats } from '../utils/dataProcessing';
-import CountryBarChart from '../components/visualizations/CountryBarChart'; // Import chart
-import Layout from '../components/layouts/Layout';
+import CountryBarChart from '../components/visualizations/CountryBarChart';
+import { useKolData } from '../hooks/useKolData'; // Import hook
 import Card from '../components/ui/Card';
-
-// NOTE: This will be migrated to use Context API (Step 3) 
-// and the API (Step 5), but for Step 1/2A, we use mock data directly.
+import Layout from '../components/layouts/Layout';
 
 const Dashboard: React.FC = () => {
 
-    const stats = useMemo(() => calculateOverviewStats(mockKolData), []);
+    // Use the custom hook to access global state
+    const { stats, filteredKols, isLoading, error } = useKolData();
+
+    if (error) return <p className="text-red-500">Error: {error}</p>;
+    if (isLoading || !stats) return <p>Loading...</p>; // Placeholder for LoadingSpinner
 
     const formatNumber = (num: number) => num.toLocaleString('en-US', { maximumFractionDigits: 0 });
     const formatHIndex = (num: number) => num.toFixed(2);
 
+    // Data for the chart is now derived from the global context/stats
+    const chartData = stats.topCountries;
+
     return (
         <Layout>
             <div className="space-y-8">
+
                 {/* StatCards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
@@ -46,12 +50,12 @@ const Dashboard: React.FC = () => {
                     />
                 </div>
 
-                {/* D3 Chart - Step 2A */}
+                {/* D3 Chart - Now using context data */}
                 <Card>
                     <h2 className="text-xl font-semibold text-text-dark">KOL Distribution by Country</h2>
-                    <p className="text-sm text-gray-500 mb-4">Top 10 countries by number of Key Opinion Leaders.</p>
+                    <p className="text-sm text-gray-500 mb-4">Top 10 countries by number of Key Opinion Leaders (Filtered: {filteredKols.length}).</p>
                     <div className="w-full">
-                        <CountryBarChart data={stats.topCountries} />
+                        <CountryBarChart data={chartData} />
                     </div>
                 </Card>
             </div>

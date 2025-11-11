@@ -1,10 +1,13 @@
 import './App.css'
 import Dashboard from './pages/Dashboard'
+import { KolProvider } from './providers/KolProvider'
 
 function App() {
 
   return (
-    <Dashboard />
+    <KolProvider>
+      <Dashboard />
+    </KolProvider>
   )
 }
 
